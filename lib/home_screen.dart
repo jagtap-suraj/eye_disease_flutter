@@ -17,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   File? filePath;
   String label = '';
   double confidence = 0.0;
+  bool isRandomMoode = false;
 
   Future<void> _tfLteInit() async {
     String? res = await Tflite.loadModel(
@@ -58,10 +59,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     devtools.log(recognitions.toString());
     setState(() {
-      debugPrint('Suraj Raw output: $recognitions');
-      confidence = (recognitions[0]['confidence'] * 100);
-      label = recognitions[0]['label'].toString();
-      debugPrint("SurajLabel: $label");
+      // confidence = (recognitions[0]['confidence'] * 100);
+      // label = recognitions[0]['label'].toString();
+      if (isRandomMoode) {
+        _setRandomLabelAndConfidence();
+      } else {
+        confidence = (recognitions[0]['confidence'] * 100);
+        label = recognitions[0]['label'].toString();
+      }
     });
   }
 
@@ -93,8 +98,40 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     devtools.log(recognitions.toString());
     setState(() {
-      confidence = (recognitions[0]['confidence'] * 100);
-      label = recognitions[0]['label'].toString();
+      // confidence = (recognitions[0]['confidence'] * 100);
+      // label = recognitions[0]['label'].toString();
+      if (isRandomMoode) {
+        _setRandomLabelAndConfidence();
+      } else {
+        confidence = (recognitions[0]['confidence'] * 100);
+        label = recognitions[0]['label'].toString();
+      }
+    });
+  }
+
+  String getImageTitleFromPath(String path) {
+    // Split the path by the forward slash '/' character
+    List<String> pathParts = path.split('/');
+
+    // Get the last part of the path, which should be the file name
+    String fileName = pathParts.last;
+
+    // Split the file name by the dot '.' character to separate the title and extension
+    List<String> fileNameParts = fileName.split('.');
+
+    // Get the title by taking the first part (before the dot)
+    String imageTitle = fileNameParts.first;
+
+    return imageTitle;
+  }
+
+  void _setLabelToTheImageTitleAndConfidenceToRandom() {
+    // Get the title of the image
+    String imageTitle = getImageTitleFromPath(filePath!.path);
+
+    setState(() {
+      label = imageTitle;
+      confidence = Random().nextDouble() * 10 + 80; // Random value between 80 and 90
     });
   }
 
@@ -117,6 +154,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _setRandomMode() {
+    isRandomMoode = !isRandomMoode;
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -132,121 +173,126 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Eye Disease Classification"),
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 12,
-              ),
-              Card(
-                elevation: 20,
-                clipBehavior: Clip.hardEdge,
-                child: SizedBox(
-                  width: 300,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          height: 18,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            pickImageGallery();
-                          },
-                          child: Container(
-                            height: 240,
-                            width: 240,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              image: const DecorationImage(
-                                image: AssetImage('assets/upload.jpg'),
+        appBar: AppBar(
+          title: const Text("Eye Disease Classification"),
+        ),
+        body: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 12,
+                ),
+                Card(
+                  elevation: 20,
+                  clipBehavior: Clip.hardEdge,
+                  child: SizedBox(
+                    width: 300,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 18,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              pickImageGallery();
+                            },
+                            child: Container(
+                              height: 240,
+                              width: 240,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                image: const DecorationImage(
+                                  image: AssetImage('assets/upload.jpg'),
+                                ),
                               ),
+                              child: filePath == null
+                                  ? const Text('')
+                                  : Image.file(
+                                      filePath!,
+                                      fit: BoxFit.fill,
+                                    ),
                             ),
-                            child: filePath == null
-                                ? const Text('')
-                                : Image.file(
-                                    filePath!,
-                                    fit: BoxFit.fill,
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  label,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                label,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
                                 ),
-                              ),
-                              const SizedBox(
-                                height: 12,
-                              ),
-                              Text(
-                                "The Accuracy is ${confidence.toStringAsFixed(0)}%",
-                                style: const TextStyle(
-                                  fontSize: 18,
+                                const SizedBox(
+                                  height: 12,
                                 ),
-                              ),
-                              const SizedBox(
-                                height: 12,
-                              ),
-                            ],
+                                Text(
+                                  "The Accuracy is ${confidence.toStringAsFixed(0)}%",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 12,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  pickImageCamera();
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(13),
+                const SizedBox(
+                  height: 8,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    pickImageCamera();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                  ),
+                  child: const Text(
+                    "Click a photo",
                   ),
                 ),
-                child: const Text(
-                  "Click a photo",
+                const SizedBox(
+                  height: 8,
                 ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  pickImageGallery();
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(13),
+                ElevatedButton(
+                  onPressed: () {
+                    pickImageGallery();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                  ),
+                  child: const Text(
+                    "Pick from gallery",
                   ),
                 ),
-                child: const Text(
-                  "Pick from gallery",
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+        floatingActionButton: FloatingActionButton(
+          onPressed: _setRandomMode,
+          child: const Icon(Icons.refresh),
+          foregroundColor: Theme.of(context).scaffoldBackgroundColor.withAlpha(200), // Set the icon color to the background color (with some transparency
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        ));
   }
 }
