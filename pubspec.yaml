@@ -31,7 +31,9 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter:
     sdk: flutter
+  flutter_image_compress: ^2.2.0
   flutter_tflite: ^1.0.1
+  image: ^3.3.0
   image_picker: 0.8.9
   tflite_flutter: ^0.10.4
 

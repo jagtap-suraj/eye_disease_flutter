@@ -65,58 +65,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  pickImageCamera() async {
-    final ImagePicker picker = ImagePicker();
-// Pick an image.
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
-
-    if (image == null) return;
-
-    var imageMap = File(image.path);
-
-    setState(() {
-      filePath = imageMap;
-    });
-
-    var recognitions = await Tflite.runModelOnImage(
-        path: image.path, // required
-        imageMean: 0.0, // defaults to 117.0
-        imageStd: 255.0, // defaults to 1.0
-        numResults: 2, // defaults to 5
-        threshold: 0.2, // defaults to 0.1
-        asynch: true // defaults to true
-        );
-
-    if (recognitions == null) {
-      devtools.log("recognitions is Null");
-      return;
-    }
-    devtools.log(recognitions.toString());
-    setState(() {
-      confidence = (recognitions[0]['confidence'] * 100);
-      label = recognitions[0]['label'].toString();
-    });
-  }
-
-  void _setRandomLabelAndConfidence() {
-    // Read the labels from myLabels.txt
-    final labels = [
-      'cataract',
-      'diabetic_retinopathy',
-      'glaucoma',
-      'normal'
-    ];
-
-    // Generate a random index within the range of labels
-    final random = Random();
-    final randomIndex = random.nextInt(labels.length);
-
-    setState(() {
-      label = labels[randomIndex];
-      confidence = random.nextDouble() * 10 + 80; // Random value between 80 and 90
-    });
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -207,23 +155,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  pickImageCamera();
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                ),
-                child: const Text(
-                  "Click a photo",
                 ),
               ),
               const SizedBox(
