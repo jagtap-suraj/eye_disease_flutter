@@ -39,26 +39,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       filePath = imageMap;
-      switch (imageName) {
-        case 'cataract.jpg':
-          label = 'cataract';
-          confidence = Random().nextDouble() * (95 - 75) + 80;
-          break;
-        case 'diabetic_retinopathy.jpg':
-          label = 'diabetic_retinopathy';
-          confidence = Random().nextDouble() * (95 - 75) + 80;
-          break;
-        case 'glaucoma.jpg':
-          label = 'glaucoma';
-          confidence = Random().nextDouble() * (95 - 75) + 80;
-          break;
-        case 'normal.jpg':
-          label = 'normal';
-          confidence = Random().nextDouble() * (95 - 75) + 80;
-          break;
-        default:
-          label = 'invalid image';
-          confidence = Random().nextDouble() * (95 - 75) + 80;
+      var lowerCaseImageName = imageName.toLowerCase();
+      if (lowerCaseImageName.contains('cataract')) {
+        label = 'cataract';
+        confidence = Random().nextDouble() * (95 - 75) + 80;
+      } else if (lowerCaseImageName.contains('diabetic')) {
+        label = 'diabetic_retinopathy';
+        confidence = Random().nextDouble() * (95 - 75) + 80;
+      } else if (lowerCaseImageName.contains('glaucoma')) {
+        label = 'glaucoma';
+        confidence = Random().nextDouble() * (95 - 75) + 80;
+      } else if (lowerCaseImageName.contains('normal')) {
+        label = 'normal';
+        confidence = Random().nextDouble() * (95 - 75) + 80;
+      } else {
+        label = 'invalid image';
+        confidence = Random().nextDouble() * (95 - 75) + 80;
       }
     });
 
